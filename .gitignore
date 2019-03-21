@@ -3,7 +3,7 @@ bin/
 /db
 .eclipse
 /lib/
-/logs/
+/log/
 /modules
 /project/project
 /project/target
