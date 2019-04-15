@@ -13,10 +13,19 @@ GET     /message                    controllers.AsyncController.message
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
-GET     /matches                    controllers.MatchController.getMatches
+POST    /matches                    controllers.MatchController.getMatches
 
-POST    /matches                    controllers.MatchController.uploadMatches
+GET     /matches-by                 controllers.MatchController.getMatchesByStageAndSeason(season: String, stage: Option[Int])
 
-DELETE  /matches                    controllers.MatchController.deleteMatches
+GET     /matches-all                controllers.MatchController.getAllMatches
 
+PUT     /matches                    controllers.MatchController.uploadMatches
+
+DELETE  /matches                    controllers.MatchController.deleteMatches()
+
+PUT     /teams                      controllers.TeamController.uploadTeams
+
+GET     /teams-all                  controllers.TeamController.getAllTeams
+
+POST    /predictions/predict        controllers.PredictionController.makePredictions
       

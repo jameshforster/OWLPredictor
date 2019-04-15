@@ -1,14 +1,14 @@
 package services
 
 import com.google.inject.Inject
-import connectors.MongoConnector
-import models.{DatabaseFailureResponse, DatabaseResponse, DatabaseSuccessResponse, TeamModel}
+import connectors.{ApiConnector, MongoConnector}
+import models._
 import play.api.libs.json.Json
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-class TeamService @Inject()(mongoConnector: MongoConnector) {
+class TeamService @Inject()(mongoConnector: MongoConnector, apiConnector: ApiConnector) {
 
   val collectionName = "teams"
 
@@ -20,18 +20,19 @@ class TeamService @Inject()(mongoConnector: MongoConnector) {
     }
   }
 
-  def deleteTeam(name: String): Future[DatabaseResponse] = {
-    mongoConnector.deleteData(collectionName, Json.obj("name" -> Json.toJson(name))).map {
+  def deleteTeam(identifier: String): Future[DatabaseResponse] = {
+    mongoConnector.deleteData(collectionName, Json.obj("identifier" -> Json.toJson(identifier))).map {
       writes =>
         if (writes.ok) DatabaseSuccessResponse()
         else DatabaseFailureResponse(writes.writeErrors.headOption.map(_.errmsg).getOrElse("Undefined mongo error"))
     }
   }
 
-  def getTeam(name: String): Future[DatabaseResponse] = {
-    mongoConnector.getData[TeamModel](collectionName, Json.obj("name" -> Json.toJson(name))).map {
-      case Some(data) => DatabaseSuccessResponse(Some(data))
-      case _ => DatabaseFailureResponse("No matching data found")
-    }
+  def getTeam(identifier: String): Future[Option[CompetitorWithDivisionModel]] = {
+    apiConnector.getTeams.map(_.competitors.find(_.competitor.abbreviatedName == identifier))
+  }
+
+  def getAllTeams: Future[Seq[CompetitorWithDivisionModel]] = {
+    apiConnector.getTeams.map(_.competitors)
   }
 }
